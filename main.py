@@ -43,7 +43,7 @@ class Classifier(nn.Module):
         X = self.layers(X)
         X = torch.flatten(X)
         X = self.fc(X)
-        #X = F.log_softmax(X,dim=-1)
+        X = F.log_softmax(X, dim=1)
 
         return X
 
@@ -64,7 +64,7 @@ def get_dataloaders(train_path, test_path, valid_path):
     training = torchvision.datasets.ImageFolder(train_path, transform=train_transforms)
     testing = torchvision.datasets.ImageFolder(test_path, transform=test_transforms)
     valid = torchvision.datasets.ImageFolder(valid_path, transform=test_transforms)
-    train_loader = DataLoader(training, batch_size=4, shuffle=True)
+    train_loader = DataLoader(training, batch_size=32, shuffle=True)
     test_loader = DataLoader(testing, batch_size=32, shuffle=False)
     val_loader = DataLoader(valid, batch_size=32, shuffle=False)
 
@@ -86,13 +86,26 @@ def train_model(model = Classifier(in_channels=3,num_classes=4)):
     model.train()
     for epoch in tqdm(range(EPOCHS)):
 
-        for batch_idx, (inputs, labels) in enumerate(train_loader):
+        #for batch_idx, (inputs, labels) in enumerate(train_loader):
+        for batch in train_loader:
+            inputs, labels = batch
+
+            #print('inputs: ', inputs)
+            print('labels: ', labels)
+            print(len(inputs), len(labels))
+            print('inputs shape:', inputs.shape)
+            print('labels shape', labels.shape)
+
 
             # Forward pass
-            y_pred = model(inputs)
+            y_pred = model.forward(inputs)
+            print('y_pred shape: ', y_pred.shape)
+
+            #print(y_pred)
+            #print(labels.long())
 
             # Loss Function
-            loss = criterion(y_pred, labels)
+            loss = criterion(input= y_pred, target=labels.to(torch.long))
 
             # BackPropagation
             loss.backward()
@@ -101,6 +114,7 @@ def train_model(model = Classifier(in_channels=3,num_classes=4)):
             # Zero Gradients
             optimizer.zero_grad()
 
-            if batch_idx % 50:
-                print(loss.item())
+            #if batch_idx % 50:
+             #   print(loss.item())
+        print(loss)
 train_model()
