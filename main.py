@@ -32,7 +32,7 @@ class Classifier(nn.Module):
         self.layers = nn.Sequential(conv1, conv2, conv3)
 
         self.fc = nn.Sequential(
-            nn.Linear(in_features= 36864, out_features= 40),
+            nn.Linear(in_features= 1152, out_features= 40),
             nn.ReLU(),
             nn.Linear(in_features=40, out_features=20),
             nn.ReLU(),
@@ -42,7 +42,8 @@ class Classifier(nn.Module):
 
     def forward(self, X):
         X = self.layers(X)
-        X = torch.flatten(X)
+        #X = torch.flatten(X)
+        X = X.view(X.shape[0], -1)
         X = self.fc(X)
         #X = F.softmax(X, dim=-1)
 
@@ -73,7 +74,7 @@ def get_dataloaders(path: str, training: bool):
 def train_model(model = Classifier(in_channels=3,num_classes=4)):
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(params=model.parameters(), lr=0.001)
-    EPOCHS = 2
+    EPOCHS = 30
     train_loader = get_dataloaders(path='Mask_Data/train', training=True)
     model.train()
     for epoch in tqdm(range(EPOCHS)):
@@ -83,7 +84,7 @@ def train_model(model = Classifier(in_channels=3,num_classes=4)):
 
             # Forward pass
             y_pred = model.forward(inputs)
-            print('y_pred shape: ', y_pred.shape)
+           # print('y_pred shape: ', y_pred.shape)
 
             # Calculating loss
             loss = criterion(input= y_pred, target=labels)
@@ -95,5 +96,5 @@ def train_model(model = Classifier(in_channels=3,num_classes=4)):
             # Zero Gradients
             optimizer.zero_grad()
 
-        print(loss)
+        print('Epoch: {}, Loss: {}'.format(epoch, loss.item()))
 train_model()
