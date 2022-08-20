@@ -36,76 +36,57 @@ class Classifier(nn.Module):
             nn.ReLU(),
             nn.Linear(in_features=40, out_features=20),
             nn.ReLU(),
-            nn.Linear(in_features=20, out_features=num_classes)
+            nn.Linear(in_features=20, out_features=num_classes),
+            nn.LogSoftmax(dim=-1)
         )
 
     def forward(self, X):
         X = self.layers(X)
         X = torch.flatten(X)
         X = self.fc(X)
-        X = F.log_softmax(X, dim=1)
+        #X = F.softmax(X, dim=-1)
 
         return X
 
 
-def get_dataloaders(train_path, test_path, valid_path):
-    #train_path = 'Mask_Data/train'
-    #test_path = 'Mask_Data/test'
-    #valid_path = 'Mask_Data/val'
-    train_transforms = transforms.Compose([
-        transforms.Resize((64, 64)),
-        transforms.ToTensor(),
-        transforms.RandomHorizontalFlip()
-    ])
-    test_transforms = transforms.Compose([
-        transforms.Resize((64, 64)),
-        transforms.ToTensor()
-    ])
-    training = torchvision.datasets.ImageFolder(train_path, transform=train_transforms)
-    testing = torchvision.datasets.ImageFolder(test_path, transform=test_transforms)
-    valid = torchvision.datasets.ImageFolder(valid_path, transform=test_transforms)
-    train_loader = DataLoader(training, batch_size=32, shuffle=True)
-    test_loader = DataLoader(testing, batch_size=32, shuffle=False)
-    val_loader = DataLoader(valid, batch_size=32, shuffle=False)
+def get_dataloaders(path: str, training: bool):
+    global transforms
+    if training:
+        transforms = transforms.Compose([
+            transforms.Resize((64, 64)),
+            transforms.ToTensor(),
+            transforms.RandomHorizontalFlip()
+        ])
+    else:
+        transforms = transforms.Compose([
+            transforms.Resize((64, 64)),
+            transforms.ToTensor()
+        ])
 
-    return train_loader, test_loader, val_loader
+    data = torchvision.datasets.ImageFolder(
+        path, transform=transforms)
 
+    data_loader = DataLoader(data, batch_size=32, shuffle=training)
 
-# DEALING WITH DATASETS
-
-
-
+    return data_loader
 
 def train_model(model = Classifier(in_channels=3,num_classes=4)):
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(params=model.parameters(), lr=0.001)
     EPOCHS = 2
-    train_loader, test_loader, valid_loader = get_dataloaders(train_path='Mask_Data/train',
-                                                              test_path='Mask_Data/train',
-                                                              valid_path='Mask_Data/val')
+    train_loader = get_dataloaders(path='Mask_Data/train', training=True)
     model.train()
     for epoch in tqdm(range(EPOCHS)):
-
         #for batch_idx, (inputs, labels) in enumerate(train_loader):
         for batch in train_loader:
             inputs, labels = batch
-
-            #print('inputs: ', inputs)
-            print('labels: ', labels)
-            print(len(inputs), len(labels))
-            print('inputs shape:', inputs.shape)
-            print('labels shape', labels.shape)
-
 
             # Forward pass
             y_pred = model.forward(inputs)
             print('y_pred shape: ', y_pred.shape)
 
-            #print(y_pred)
-            #print(labels.long())
-
-            # Loss Function
-            loss = criterion(input= y_pred, target=labels.to(torch.long))
+            # Calculating loss
+            loss = criterion(input= y_pred, target=labels)
 
             # BackPropagation
             loss.backward()
@@ -114,7 +95,5 @@ def train_model(model = Classifier(in_channels=3,num_classes=4)):
             # Zero Gradients
             optimizer.zero_grad()
 
-            #if batch_idx % 50:
-             #   print(loss.item())
         print(loss)
 train_model()
