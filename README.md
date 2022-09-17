@@ -6,6 +6,30 @@ In this project, I used a Convolutional neural-network architecture using the Py
 * a partially covered mask
 * a non covered face
 * not a face at all
+
+Below is a sample of the images used in this project, two samples from each category.
+<table style='font-size:10'>
+        <tr>
+        <th>Fully covered</th>
+        <th>Partially Covered</th>
+        <th>Not covered</th>
+        <th>Not Face</th>
+        </tr>
+        </tr>
+        <tr>
+        <td> <img src="Images/fully_masked1.jpg\" alt=\"Fully Masked\" style=\"width: 70px;\"/> </td>
+        <td> <img src="Images/partially1.jpg\" alt=\"Partially Masked\" style=\"width: 70px;\"/> </td>
+        <td> <img src="Images/not_covered1.jpg\" alt=\"Not Masked\" style=\"width: 70px;\"/> </td>
+        <td> <img src="Images/not_face1.jpg\" alt= \"Not face\" style='width:70px'\"/> </td>
+        </tr>
+        <tr>
+        <td> <img src="Images/fully_masked2.jpg\" alt=\"Fully Masked\" style=\"width: 70px;\"/> </td>
+        <td> <img src="Images/partially2.jpg\" alt=\"Partially Masked\" style=\"width: 70px;\"/> </td>
+        <td> <img src="Images/not_covered2.jpg\" alt=\"Not Masked\" style=\"width: 70px;\"/> </td>
+        <td> <img src="Images/not_face2.jpg\" alt= \"Not face\" style='width:70px'\"/> </td>
+        </tr>
+</table>
+
 ## Concepts used in this project:
   #### Deep Learning
    - Convolutional Neural Networks
